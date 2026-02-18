@@ -1,33 +1,33 @@
 import java.net.*;
-import java.util.*;
 
 public class DNSServer {
     public static void main(String[] args) {
-        try {
-            DatagramSocket serverSocket = new DatagramSocket(8080);
-            byte[] receiveData = new byte[1021];
-            byte[] sendData;
+        try (DatagramSocket serverSocket = new DatagramSocket(9876)) {
+            System.out.println("DNS Server running on port 9876...");
 
-            // Predefined DNS table (domain → IP)
-            Map<String, String> dnsTable = new HashMap<>();
-            dnsTable.put("example.com", "68.180.206.184");
-            dnsTable.put("google.com", "209.85.148.19");
-            dnsTable.put("microsoft.com", "80.168.92.140");
-            dnsTable.put("annauniv.edu", "69.69.189.16");
-
-            System.out.println("DNS Server is running on port 8080...");
+            byte[] receiveData = new byte[1024];
 
             while (true) {
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
 
                 String domain = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                System.out.println("Received query for: " + domain);
+                System.out.println("Received domain: " + domain);
 
-                // Lookup domain
-                String ip = dnsTable.getOrDefault(domain, "Domain not found");
+                // Hardcoded resolution for testing
+                String ip;
+                switch (domain.toLowerCase()) {
+                    case "example.com":
+                        ip = "93.184.216.34";
+                        break;
+                    case "google.com":
+                        ip = "142.250.190.14";
+                        break;
+                    default:
+                        ip = "Domain not found";
+                }
 
-                sendData = ip.getBytes();
+                byte[] sendData = ip.getBytes();
                 InetAddress clientAddress = receivePacket.getAddress();
                 int clientPort = receivePacket.getPort();
 

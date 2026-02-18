@@ -1,30 +1,32 @@
 import java.net.*;
-import java.util.Scanner;
 
-public class DNSClient {
+public class DNSClientTest {
     public static void main(String[] args) {
         try {
             DatagramSocket clientSocket = new DatagramSocket();
-            InetAddress serverAddress = InetAddress.getByName("localhost"); // Server runs locally
-            Scanner scanner = new Scanner(System.in);
+            InetAddress serverAddress = InetAddress.getByName("localhost");
 
-            System.out.print("Enter domain name to resolve: ");
-            String domain = scanner.nextLine();
+            // Predefined test domains
+            String[] testDomains = {"example.com", "google.com", "unknown.com"};
 
-            byte[] sendData = domain.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, 9876);
-            clientSocket.send(sendPacket);
+            for (String domain : testDomains) {
+                // Send domain name
+                byte[] sendData = domain.getBytes();
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, 9876);
+                clientSocket.send(sendPacket);
 
-            byte[] receiveData = new byte[1024];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            clientSocket.receive(receivePacket);
+                // Receive response
+                byte[] receiveData = new byte[1024];
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                clientSocket.receive(receivePacket);
 
-            String ip = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            System.out.println("Resolved IP: " + ip);
+                String ip = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                System.out.println("Domain: " + domain + " | Resolved IP: " + ip);
+            }
 
             clientSocket.close();
-            scanner.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+}
